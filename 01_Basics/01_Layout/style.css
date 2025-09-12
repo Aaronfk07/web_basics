@@ -1,0 +1,74 @@
+/* Grey box in bottom left with orange box centered inside */
+.grey-box {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 250px;
+  height: 250px;
+  background: lightgrey;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid black;
+  
+}
+.orange-box {
+  width: 100px;
+  height: 100px;
+  background: orange;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid black;
+}
+
+/* Top left box with half green, half blue */
+.top-left-box {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 400px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid black;
+  overflow: hidden;
+}
+.top-half {
+  display: flex;
+  flex: 1;
+}
+.green-half {
+  flex: 1;
+  background: green;
+  position: relative;
+  height: 300px;
+}
+.blue-half {
+  flex: 1;
+  background: blue;
+  position: relative;
+  height: 300px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+.black-box {
+  position: absolute;
+  background: black;
+    width: 50px;
+    height: 50px;
+}
+.bottom-half {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  position: relative;
+}
+.orange-box-topleft {
+  width: 400px;
+  height: 100px;
+  background: orange;
+  border-top: 1px solid black;
+}
