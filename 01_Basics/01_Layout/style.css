@@ -40,13 +40,13 @@
 }
 .green-half {
   flex: 1;
-  background: green;
+  background: rgb(28, 227, 28);
   position: relative;
   height: 300px;
 }
 .blue-half {
   flex: 1;
-  background: blue;
+  background: rgb(30, 170, 217);
   position: relative;
   height: 300px;
   display: flex;
