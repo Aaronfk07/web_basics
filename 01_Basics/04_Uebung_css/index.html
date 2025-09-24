@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Übung Layout</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+  <!-- Hauptbereich -->
+  <div class="relative w-[200px] h-[400px] bg-blue-300">
+    <!-- Schwarze Box -->
+    <div class="absolute -top-[70px] -left-[70px] w-[70px] h-[70px] bg-black"></div>
+    
+    <!-- Grüne Box unten rechts -->
+    <div class="absolute bottom-0 right-0 w-[40px] h-[40px] bg-green-400"></div>
+  </div>
+
+  <!-- Flexbox unten -->
+  <div class="flex gap-4">
+    <div class="w-[40px] h-[40px] bg-green-400"></div>
+    <div class="w-[40px] h-[40px] bg-green-400"></div>
+    <div class="w-[40px] h-[40px] bg-green-400"></div>
+  </div>
+
+</html>
