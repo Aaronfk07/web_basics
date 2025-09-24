@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Layout Beispiel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white">
+
+  <header class="bg-yellow-300 flex items-center justify-end fixed w-full h-[100px]">
+    <div class="flex space-x-2 mr-4 mt-0 mb-0">
+      <div class="w-8 h-8 bg-green-300 border"></div>
+      <div class="w-8 h-8 bg-green-300 border"></div>
+      <div class="w-8 h-8 bg-green-300 border"></div>
+    </div>
+  </header>
+
+  <main class="p-6 pt-[92px]">
+
+    <section class="bg-blue-200 w-[400px] h-[300px] p-5 relative">
+      <h2 class="text-xl font-semibold mb-2">Willkommen!</h2>
+      <ul class="list-disc list-inside">
+        <li>Eins</li>
+        <li>Zwei</li>
+        <li>Drei</li>
+      </ul>
+
+      <div class="absolute right-0 bottom-0 w-[100px] h-[100px] bg-orange-300"></div>
+    </section>
+
+
+    <div class="w-[50px] h-[50px] bg-purple-300 absolute right-0 bottom-0"></div>
+  </main>
+
+</body>
+</html>
