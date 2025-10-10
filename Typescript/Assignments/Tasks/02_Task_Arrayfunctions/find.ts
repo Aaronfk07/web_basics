@@ -1,7 +1,7 @@
 // find.ts
 // Beispiele für Array.prototype.find in TypeScript
 
-import { Person } from './map';
+import { Person } from './map.ts';
 
 export function demoFind(): void {
   const people: Person[] = [
@@ -10,13 +10,7 @@ export function demoFind(): void {
   ];
 
   const found = people.find((p) => p.id === 2);
-  console.log('find - id 2:', found);
-
-  const notFound = people.find((p) => p.id === 999);
-  console.log('find - not found:', notFound); // undefined
-
-  // Tipp: prüfe auf undefined bevor du Eigenschaften liest
-  if (found) {
-    console.log('found name:', found.name);
-  }
+  console.log('find - id 2 name:', found ? found.name : 'not found');
 }
+
+demoFind();

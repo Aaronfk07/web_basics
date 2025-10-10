@@ -9,3 +9,5 @@ export function demoSome(): void {
   // Edge-case: leeres Array -> some === false
   console.log('some on []:', ([] as number[]).some((n) => n > 0)); // false
 }
+
+demoSome();

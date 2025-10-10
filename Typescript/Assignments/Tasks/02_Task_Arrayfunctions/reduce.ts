@@ -24,3 +24,4 @@ export function demoReduce(): void {
   const empty: number[] = [];
   // das folgende wäre ein Fehler: empty.reduce((a,b)=>a+b)
 }
+demoReduce();

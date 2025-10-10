@@ -14,3 +14,5 @@ export function demoSort(): void {
 
   // Hinweis: sort verändert das Array in-place -> nutze Kopie wenn du das Original behalten willst
 }
+
+demoSort();

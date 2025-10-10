@@ -9,3 +9,5 @@ export function demoEvery(): void {
   // Edge-case: leeres Array -> every === true
   console.log('every on []:', ([] as number[]).every((n) => n > 0)); // true
 }
+
+demoEvery();
