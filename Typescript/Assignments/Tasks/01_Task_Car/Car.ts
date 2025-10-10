@@ -1,7 +1,6 @@
 
 import { Car } from "./interface.ts";
 
-// Sample data
 export const cars: Car[] = [
   { brand: "BMW", model: "X5", price: 65000, year: 2022 },
   { brand: "Audi", model: "A4", price: 40000, year: 2021 },
@@ -9,7 +8,6 @@ export const cars: Car[] = [
   { brand: "VW", model: "Golf", price: 25000, year: 2020 },
 ];
 
-// 1. Gesamtpreis berechnen
 export function getTotalPrice(cars: Car[]): number {
   let total = 0;
   cars.forEach((car) => {
