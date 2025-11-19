@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lehrer — HTL Dornbirn Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+  <header class="fixed top-0 left-0 right-0 bg-white shadow z-50">
+    <div class="max-w-6xl mx-auto flex items-center justify-between py-3 px-4">
+      <nav class="flex items-center space-x-6">
+        <a href="index.html" class="text-indigo-600 font-semibold">Home</a>
+        <a href="schueler.html" class="text-gray-700 hover:text-indigo-600">Schüler</a>
+        <a href="lehrer.html" class="text-gray-700 hover:text-indigo-600">Lehrer</a>
+      </nav>
+      <div class="flex items-center">
+        <img src="https://www.nts.eu/app/uploads/2025/02/HTL-Dornbirn-blau.png" alt="HTL Dornbirn Logo" class="h-10 w-auto object-contain">
+      </div>
+    </div>
+  </header>
+
+  <main class="w-full max-w-4xl bg-white p-6 rounded shadow mt-20 mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Lehrerbereich — Notenverwaltung</h1>
+
+    <section class="mb-6">
+      <p class="text-gray-700">Verwalten Sie Noten für die in der Schülerverwaltung eingetragenen Schüler. Die Schülerliste wird aus dem Demo-Storage geladen.</p>
+    </section>
+
+    <!-- Notenformular -->
+    <section class="mb-6">
+      <form id="gradeForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div>
+          <label class="block text-sm font-medium mb-1" for="studentSelect">Schüler</label>
+          <select id="studentSelect" class="w-full border border-gray-300 rounded-md px-3 py-2"></select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1" for="subject">Fach</label>
+          <input id="subject" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="z.B. Mathematik" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1" for="grade">Note</label>
+          <input id="grade" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="z.B. 1.3 oder 2" />
+        </div>
+
+        <div class="md:col-span-3 flex items-center gap-3">
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md">Note hinzufügen</button>
+          <button type="button" id="clearGrades" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-md">Formular zurücksetzen</button>
+          <button type="button" id="exportCsv" class="ml-auto bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md">Export CSV</button>
+        </div>
+      </form>
+    </section>
+
+    <div id="gradeMsg" class="hidden mb-4 p-3 rounded text-sm"></div>
+
+    <!-- Notentabelle -->
+    <section>
+      <div class="overflow-auto border rounded">
+        <table class="min-w-full text-left text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2">#</th>
+              <th class="px-4 py-2">Schüler</th>
+              <th class="px-4 py-2">Fach</th>
+              <th class="px-4 py-2">Note</th>
+              <th class="px-4 py-2">Datum</th>
+              <th class="px-4 py-2">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="gradesBody" class="bg-white"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <script>
+      (function(){
+        const STUDENT_KEY = 'demo_students';
+        const GRADE_KEY = 'demo_grades';
+        const students = JSON.parse(localStorage.getItem(STUDENT_KEY) || '[]');
+        let grades = JSON.parse(localStorage.getItem(GRADE_KEY) || '[]');
+
+        const studentSelect = document.getElementById('studentSelect');
+        const gradeForm = document.getElementById('gradeForm');
+        const gradesBody = document.getElementById('gradesBody');
+        const msg = document.getElementById('gradeMsg');
+        const clearGrades = document.getElementById('clearGrades');
+        const exportCsv = document.getElementById('exportCsv');
+
+        function save(){ localStorage.setItem(GRADE_KEY, JSON.stringify(grades)); }
+
+        function showMessage(text, type='success'){
+          msg.textContent = text;
+          msg.className = (type==='success') ? 'mb-4 p-3 rounded text-sm bg-green-50 text-green-800' : 'mb-4 p-3 rounded text-sm bg-red-50 text-red-800';
+          msg.classList.remove('hidden');
+          setTimeout(()=> msg.classList.add('hidden'), 2500);
+        }
+
+        // populate student select
+        function populateStudents(){
+          studentSelect.innerHTML = '';
+          if(students.length === 0){
+            const opt = document.createElement('option'); opt.textContent = 'Keine Schüler vorhanden'; opt.value = '';
+            studentSelect.appendChild(opt); return;
+          }
+          students.forEach((s, i)=>{
+            const name = `${s.firstName} ${s.lastName}`.trim();
+            const opt = document.createElement('option'); opt.value = name; opt.textContent = `${name} (${s.klasse || '-'})`;
+            studentSelect.appendChild(opt);
+          });
+        }
+
+        function renderGrades(){
+          gradesBody.innerHTML = '';
+          grades.forEach((g, i)=>{
+            const tr = document.createElement('tr');
+            tr.className = i % 2 ? 'bg-gray-50' : '';
+            tr.innerHTML = `
+              <td class="px-4 py-2 align-top">${i+1}</td>
+              <td class="px-4 py-2 align-top">${escapeHtml(g.student)}</td>
+              <td class="px-4 py-2 align-top">${escapeHtml(g.subject)}</td>
+              <td class="px-4 py-2 align-top">${escapeHtml(g.grade)}</td>
+              <td class="px-4 py-2 align-top">${escapeHtml(g.date)}</td>
+              <td class="px-4 py-2 align-top"><button data-index="${i}" class="delete-grade bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">Löschen</button></td>
+            `;
+            gradesBody.appendChild(tr);
+          });
+        }
+
+        function escapeHtml(text){ if(!text) return ''; return String(text).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+
+        gradeForm.addEventListener('submit', function(e){
+          e.preventDefault();
+          const student = studentSelect.value;
+          const subject = document.getElementById('subject').value.trim();
+          const grade = document.getElementById('grade').value.trim();
+          if(!student){ showMessage('Bitte einen Schüler auswählen', 'error'); return; }
+          if(!subject || !grade){ showMessage('Fach und Note sind erforderlich', 'error'); return; }
+          const date = new Date().toLocaleDateString();
+          grades.push({ student, subject, grade, date });
+          save(); renderGrades(); gradeForm.reset(); showMessage('Note hinzugefügt', 'success');
+        });
+
+        clearGrades.addEventListener('click', function(){ gradeForm.reset(); });
+
+        // Delegated delete
+        gradesBody.addEventListener('click', function(e){
+          const btn = e.target.closest('.delete-grade'); if(!btn) return;
+          const idx = Number(btn.getAttribute('data-index'));
+          if(!Number.isFinite(idx)) return;
+          if(!confirm('Note wirklich löschen?')) return;
+          grades.splice(idx, 1); save(); renderGrades(); showMessage('Note gelöscht', 'success');
+        });
+
+        exportCsv.addEventListener('click', function(){
+          if(grades.length === 0){ showMessage('Keine Noten zum Exportieren', 'error'); return; }
+          const rows = [['Schüler','Fach','Note','Datum']];
+          grades.forEach(g => rows.push([g.student, g.subject, g.grade, g.date]));
+          const csv = rows.map(r => r.map(cell => '"'+String(cell).replace(/"/g,'""')+'"').join(',')).join('\n');
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a'); a.href = url; a.download = 'grades.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        });
+
+        // initial
+        populateStudents(); renderGrades();
+      })();
+    </script>
+  </main>
+</body>
+</html>

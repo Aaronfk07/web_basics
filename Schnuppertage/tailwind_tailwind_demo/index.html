@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tailwind-Erklärung + Login Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen p-6">
+
+  <!-- Fixed header (ganz oben) -->
+  <header class="fixed top-0 left-0 right-0 bg-white shadow z-50">
+    <div class="max-w-6xl mx-auto flex items-center justify-between py-3 px-4">
+      <nav class="flex items-center space-x-6">
+        <a href="index.html" class="text-indigo-600 font-semibold">Home</a>
+        <a href="schueler.html" class="text-gray-700 hover:text-indigo-600">Schüler</a>
+        <a href="lehrer.html" class="text-gray-700 hover:text-indigo-600">Lehrer</a>
+      </nav>
+      <div class="flex items-center gap-4">
+        <button onclick="(function(){ sessionStorage.removeItem('demo_logged_in'); sessionStorage.removeItem('demo_user_email'); alert('Sie wurden ausgeloggt'); window.location.href='login.html'; })()" class="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-2 rounded-md shadow">Logout</button>
+        <!-- Bitte legen Sie eine Datei `htl_dornbirn_logo.png` in diesen Ordner. -->
+        <img src="https://www.nts.eu/app/uploads/2025/02/HTL-Dornbirn-blau.png" alt="HTL Dornbirn Logo" class="h-10 w-auto object-contain">
+      </div>
+    </div>
+  </header>
+
+
+
+
+  <div class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 pt-20 mx-auto">
+    <!-- Left: Erklärung -->
+    <main class="p-8 bg-gray-300 shadow-md rounded-lg">
+
+      <section class="mb-6">
+        <h2 class="text-xl font-semibold mb-2">HTML, CSS / Tailwind und JavaScript</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-4 bg-gray-50 border rounded text-sm text-gray-700">
+            <h3 class="font-medium mb-2">HTML</h3>
+            <p>HTML definiert die Struktur einer Seite. Nutze semantische Tags wie <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code> und <code>&lt;footer&gt;</code> für bessere Zugänglichkeit.</p>
+            <p class="mt-2 text-xs bg-white p-2 rounded"><code>&lt;p&gt;Hallo Welt&lt;/p&gt;</code></p>
+          </div>
+
+          <div class="p-4 bg-gray-50 border rounded text-sm text-gray-700">
+            <h3 class="font-medium mb-2">CSS &amp; Tailwind</h3>
+            <p>CSS steuert das Aussehen. Tailwind ist ein utility-first Framework: kleine Klassen statt großer CSS-Dateien (z.B. <code>px-4 py-2 bg-indigo-600</code>).</p>
+            <p class="mt-2 text-xs bg-white p-2 rounded"><span class="px-2 py-1 bg-indigo-600 text-white rounded text-xs">Tailwind Button</span></p>
+          </div>
+
+          <div class="p-4 bg-gray-50 border rounded text-sm text-gray-700">
+            <h3 class="font-medium mb-2">JavaScript</h3>
+            <p>JavaScript fügt Interaktivität hinzu: Events, DOM-Manipulation und asynchrone Abfragen (Fetch, Promises).</p>
+            <p class="mt-2 text-xs bg-white p-2 rounded"><code>button.addEventListener('click', () =&gt; { /* ... */ })</code></p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+</body>
+</html>

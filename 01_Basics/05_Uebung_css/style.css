@@ -15,7 +15,7 @@
 .orange-box {
   width: 100px;
   height: 100px;
-  background: orange;
+  background: green;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,13 +40,13 @@
 }
 .green-half {
   flex: 1;
-  background: rgb(28, 227, 28);
+  background: rgb(34, 26, 13);
   position: relative;
   height: 300px;
 }
 .blue-half {
   flex: 1;
-  background: rgb(30, 170, 217);
+  background: rgb(231, 22, 206);
   position: relative;
   height: 300px;
   display: flex;

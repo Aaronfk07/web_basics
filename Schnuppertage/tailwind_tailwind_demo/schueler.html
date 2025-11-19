@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Schüler — HTL Dornbirn Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+  <header class="fixed top-0 left-0 right-0 bg-white shadow z-50">
+    <div class="max-w-6xl mx-auto flex items-center justify-between py-3 px-4">
+      <nav class="flex items-center space-x-6">
+        <a href="index.html" class="text-indigo-600 font-semibold">Home</a>
+        <a href="schueler.html" class="text-gray-700 hover:text-indigo-600">Schüler</a>
+        <a href="lehrer.html" class="text-gray-700 hover:text-indigo-600">Lehrer</a>
+      </nav>
+      <div class="flex items-center">
+        <img src="https://www.nts.eu/app/uploads/2025/02/HTL-Dornbirn-blau.png" alt="HTL Dornbirn Logo" class="h-10 w-auto object-contain">
+      </div>
+    </div>
+  </header>
+
+  <main class="w-full max-w-4xl bg-white p-6 rounded shadow mt-20 mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Schülerverwaltung</h1>
+
+    <!-- Formular zum Hinzufügen eines Schülers -->
+    <section class="mb-6">
+      <form id="studentForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1" for="firstName">Vorname</label>
+          <input id="firstName" name="firstName" required class="w-full border border-gray-300 rounded-md px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="lastName">Nachname</label>
+          <input id="lastName" name="lastName" required class="w-full border border-gray-300 rounded-md px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="klasse">Klasse</label>
+          <input id="klasse" name="klasse" class="w-full border border-gray-300 rounded-md px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="email">E-Mail</label>
+          <input id="email" name="email" type="email" class="w-full border border-gray-300 rounded-md px-3 py-2" />
+        </div>
+
+        <div class="md:col-span-2 flex items-center gap-3">
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-md">Schüler hinzufügen</button>
+          <button type="button" id="clearBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-md">Formular zurücksetzen</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Nachrichten -->
+    <div id="msg" class="hidden mb-4 p-3 rounded text-sm"></div>
+
+    <!-- Tabelle der Schüler -->
+    <section>
+      <div class="overflow-auto border rounded">
+        <table class="min-w-full text-left text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2">#</th>
+              <th class="px-4 py-2">Vorname</th>
+              <th class="px-4 py-2">Nachname</th>
+              <th class="px-4 py-2">Klasse</th>
+              <th class="px-4 py-2">E-Mail</th>
+              <th class="px-4 py-2">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="studentsBody" class="bg-white">
+            <!-- Dynamisch befüllt -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <script>
+      (function(){
+        const KEY = 'demo_students';
+        let students = JSON.parse(localStorage.getItem(KEY) || '[]');
+
+        const form = document.getElementById('studentForm');
+        const tbody = document.getElementById('studentsBody');
+        const msg = document.getElementById('msg');
+        const clearBtn = document.getElementById('clearBtn');
+
+        function save() { localStorage.setItem(KEY, JSON.stringify(students)); }
+
+        function showMessage(text, type='success'){
+          msg.textContent = text;
+          msg.className = (type==='success') ? 'mb-4 p-3 rounded text-sm bg-green-50 text-green-800' : 'mb-4 p-3 rounded text-sm bg-red-50 text-red-800';
+          msg.classList.remove('hidden');
+          setTimeout(()=> msg.classList.add('hidden'), 2500);
+        }
+
+        function render(){
+          tbody.innerHTML = '';
+          students.forEach((s, i)=>{
+            const tr = document.createElement('tr');
+            tr.className = i % 2 ? 'bg-gray-50' : '';
+            tr.innerHTML = `
+              <td class="px-4 py-2 align-top">${i+1}</td>
+              <td class="px-4 py-2 align-top">${escapeHtml(s.firstName)}</td>
+              <td class="px-4 py-2 align-top">${escapeHtml(s.lastName)}</td>
+              <td class="px-4 py-2 align-top">${escapeHtml(s.klasse)}</td>
+              <td class="px-4 py-2 align-top">${escapeHtml(s.email || '')}</td>
+              <td class="px-4 py-2 align-top"><button data-index="${i}" class="delete-btn bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">Löschen</button></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+
+        function escapeHtml(text){
+          if(!text) return '';
+          return text.replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+        }
+
+        form.addEventListener('submit', function(e){
+          e.preventDefault();
+          const firstName = form.firstName.value.trim();
+          const lastName = form.lastName.value.trim();
+          const klasse = form.klasse.value.trim();
+          const email = form.email.value.trim();
+          if(!firstName || !lastName){ showMessage('Vor- und Nachname sind erforderlich', 'error'); return; }
+          students.push({ firstName, lastName, klasse, email });
+          save();
+          render();
+          form.reset();
+          showMessage('Schüler hinzugefügt', 'success');
+        });
+
+        clearBtn.addEventListener('click', function(){ form.reset(); });
+
+        // Lösch-Handler (Event Delegation)
+        tbody.addEventListener('click', function(e){
+          const btn = e.target.closest('.delete-btn');
+          if(!btn) return;
+          const idx = Number(btn.getAttribute('data-index'));
+          if(!Number.isFinite(idx)) return;
+          if(!confirm('Schüler wirklich löschen?')) return;
+          students.splice(idx, 1);
+          save();
+          render();
+          showMessage('Schüler gelöscht', 'success');
+        });
+
+        // initial render
+        render();
+      })();
+    </script>
+  </main>
+</body>
+</html>

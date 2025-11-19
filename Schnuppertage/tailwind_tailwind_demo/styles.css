@@ -1,0 +1,26 @@
+/* Ergänzende CSS-Datei: zeigt äquivalente CSS-Regeln zu einigen Tailwind-Utilities */
+body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+
+.btn { 
+  background-color: #4f46e5; /* indigo-600 */
+  color: #ffffff;
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  border-radius: 0.375rem; /* rounded-md */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  font-weight: 500;
+}
+.btn:hover { background-color: #4338ca; }
+
+.card {
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
+}
+
+/* Utility example: focus ring */
+.focus-ring:focus { outline: none; box-shadow: 0 0 0 4px rgba(99,102,241,0.2); border-color: #6366f1; }
+
+/* Kleine Anpassungen für die Demo-Ansicht */
+pre { background: #f3f4f6; padding: 0.5rem; border-radius: 6px; }

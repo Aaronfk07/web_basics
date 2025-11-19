@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login — Tailwind Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-2xl font-bold mb-2">Demo Login</h1>
+    <p class="text-sm text-gray-600 mb-4">Melden Sie sich an, um die Tailwind-Demo zu sehen (theoretisch).</p>
+
+    <form id="loginForm" class="space-y-4">
+      <div>
+        <label for="email" class="block text-sm font-medium mb-1">E-Mail</label>
+        <input id="email" type="email" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="demo@example.com">
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium mb-1">Passwort</label>
+        <input id="password" type="password" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="demo123">
+      </div>
+
+      <div>
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-md">Anmelden</button>
+      </div>
+    </form>
+
+    <p class="mt-4 text-xs text-gray-500">Hinweis: Demo-Zugang — beliebige gültige E-Mail + Passwort funktionieren.</p>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      // In einer echten App hier Authentifizierung gegen Backend
+      // Für die Demo: setze Session-Flag und weiter zu index.html
+      sessionStorage.setItem('demo_logged_in', 'true');
+      // optional: speichern der e-mail
+      var email = document.getElementById('email').value;
+      sessionStorage.setItem('demo_user_email', email);
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
