@@ -40,3 +40,26 @@
 .read-the-docs {
   color: #888;
 }
+
+/* List styles for the demo components */
+.list {
+  display: inline-block;
+  text-align: left;
+  margin-top: 0.75rem;
+}
+.list-item {
+  background: #0f9a8e;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+  transition: background 160ms ease, transform 120ms ease;
+  width: 220px;
+}
+.list-item:hover {
+  background: #0c7d72;
+  transform: translateY(-3px);
+}
+.list-item:active {
+  transform: translateY(0);
+}

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import List from './components/List'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -28,6 +29,9 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <h2 style={{ marginTop: '2rem' }}>Demo List</h2>
+      <p style={{ marginBottom: '0.5rem' }}>Hover over items and click to see a popup.</p>
+      <List />
     </>
   )
 }
