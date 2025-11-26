@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Follow-Liste durchgehen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: #0f172a;
+        color: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+
+      .app {
+        max-width: 480px;
+        width: 100%;
+        padding: 24px;
+      }
+
+      .card {
+        background: rgba(15, 23, 42, 0.9);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+      }
+
+      .title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+        color: #9ca3af;
+        margin-bottom: 16px;
+      }
+
+      .user-handle {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        word-break: break-all;
+      }
+
+      .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .badge {
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .badge-green {
+        background: rgba(22, 163, 74, 0.15);
+        color: #bbf7d0;
+        border: 1px solid rgba(34, 197, 94, 0.4);
+      }
+
+      .badge-red {
+        background: rgba(185, 28, 28, 0.15);
+        color: #fecaca;
+        border: 1px solid rgba(248, 113, 113, 0.4);
+      }
+
+      .badge-blue {
+        background: rgba(59, 130, 246, 0.15);
+        color: #bfdbfe;
+        border: 1px solid rgba(59, 130, 246, 0.4);
+      }
+
+      .url {
+        font-size: 0.85rem;
+        color: #9ca3af;
+        word-break: break-all;
+        margin-bottom: 18px;
+      }
+
+      .url a {
+        color: #93c5fd;
+        text-decoration: none;
+      }
+
+      .url a:hover {
+        text-decoration: underline;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      button {
+        border: none;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        flex: 1;
+        background: #111827;
+        color: #e5e7eb;
+        border: 1px solid rgba(75, 85, 99, 0.8);
+        transition: background 0.15s ease, transform 0.05s ease,
+          border-color 0.15s ease;
+      }
+
+      button.wide {
+        flex: 1.4;
+      }
+
+      button:hover:not(:disabled) {
+        background: #1f2937;
+        border-color: #9ca3af;
+      }
+
+      button:active:not(:disabled) {
+        transform: translateY(1px);
+      }
+
+      button:disabled {
+        cursor: default;
+        opacity: 0.4;
+      }
+
+      .primary {
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        border-color: transparent;
+        color: white;
+      }
+
+      .primary:hover:not(:disabled) {
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+      }
+
+      .footer {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 8px;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .status {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 10px;
+      }
+
+      .status span {
+        color: #e5e7eb;
+        font-weight: 500;
+      }
+
+      .error {
+        color: #fecaca;
+        background: rgba(185, 28, 28, 0.2);
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin-top: 10px;
+        font-size: 0.85rem;
+      }
+
+      .hidden {
+        display: none;
+      }
+      /* Fullscreen overlay für großes Bild */
+      #big-image-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.95);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 20px;
+        cursor: pointer;
+      }
+
+      #big-image-overlay.visible {
+        display: flex;
+      }
+
+      #big-image-overlay img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        cursor: auto;
+      }
+
+      #big-image-overlay .close-hint {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        color: #cbd5e1;
+        font-size: 14px;
+        pointer-events: none;
+      }
+      /* Tabelle / Listenansicht */
+      #list-view {
+        width: 100%;
+      }
+
+      #accounts-table {
+        width: 100%;
+        border-collapse: collapse;
+        color: #e5e7eb;
+        font-size: 0.95rem;
+      }
+
+      #accounts-table thead th {
+        text-align: left;
+        padding: 8px 10px;
+        color: #9ca3af;
+        font-weight: 600;
+        border-bottom: 1px solid rgba(148,163,184,0.06);
+      }
+
+      #accounts-table tbody td {
+        padding: 10px 10px;
+        border-bottom: 1px solid rgba(148,163,184,0.04);
+      }
+
+      #accounts-table tbody tr:hover {
+        background: rgba(255,255,255,0.02);
+        cursor: pointer;
+      }
+
+      #back-to-card {
+        margin: 10px 0 16px 0;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: #111827;
+        color: #e5e7eb;
+        border: 1px solid rgba(75,85,99,0.8);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="card">
+        <div class="title">Following Review Demo</div>
+        <div class="subtitle">Demo zum Durchgehen und Überprüfen von Follow-Listen</div>
+
+        <div id="content">
+          <div id="loading">Lade Daten …</div>
+          <div id="user-view" class="hidden">
+            <div class="user-handle" id="user-handle">@username</div>
+
+            <div class="meta-row">
+              <div id="follow-back-badge" class="badge"></div>
+              <div id="position-badge" class="badge badge-blue"></div>
+            </div>
+
+            <div class="url">
+              <a
+                id="profile-link"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+              ></a>
+            </div>
+
+            <div class="buttons">
+              <button id="prev-btn" type="button">← Zurück</button>
+              <button id="open-btn" type="button" class="primary wide">
+                Profil öffnen
+              </button>
+              <button id="next-btn" type="button">Weiter →</button>
+            </div>
+
+            <div class="footer">
+              <div>
+                Tastatur: ← zurück · → weiter · Leertaste: Profil öffnen
+                <button id="list-btn" type="button" style="margin-left:10px;padding:6px 10px;border-radius:8px;background:#111827;border:1px solid rgba(75,85,99,0.8);color:#e5e7eb;cursor:pointer;">Übersicht</button>
+              </div>
+              <div id="seen-info"></div>
+            </div>
+
+            <div id="status" class="status"></div>
+            <div id="error" class="error hidden"></div>
+          </div>
+
+          <!-- List / Table view (hidden by default) -->
+          <div id="list-view" class="hidden">
+            <button id="back-to-card">Zurück zur Karte</button>
+            <table id="accounts-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Handle</th>
+                  <th>Folgt zurück</th>
+                  <th>Profil</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Name des localStorage-Keys
+      const STORAGE_KEY = "igFollowerSorterState_v1";
+
+      let followingItems = []; // Liste aller Accounts, denen du folgst
+      let order = []; // Array von usernameLower in Zufallsreihenfolge
+      let currentIndex = 0; // Position im "order"-Array
+      let usernameToItem = new Map(); // Map: usernameLower -> Item
+  // Set für aktuell gedrückte Tasten (keyboard codes)
+  const pressedCodes = new Set();
+
+      function normalizeUsername(name) {
+        return (name || "").trim().toLowerCase();
+      }
+
+      function parseUsernameFromHref(href) {
+        if (!href) return null;
+        try {
+          const url = new URL(href);
+          const segments = url.pathname.split("/").filter(Boolean);
+          if (segments.length === 0) return null;
+          return segments[segments.length - 1];
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function shuffle(array) {
+        const arr = array.slice();
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function saveState() {
+        try {
+          const state = {
+            order,
+            currentIndex,
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+          // Ignorieren, falls localStorage nicht verfügbar ist
+        }
+      }
+
+      function loadState(allUsernamesLower) {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return null;
+          const state = JSON.parse(raw);
+          if (!state || !Array.isArray(state.order)) return null;
+
+          const existingSet = new Set(allUsernamesLower);
+          const used = new Set();
+
+          // Nur User behalten, die es noch gibt
+          const filteredOrder = [];
+          for (const name of state.order) {
+            if (existingSet.has(name) && !used.has(name)) {
+              filteredOrder.push(name);
+              used.add(name);
+            }
+          }
+
+          // Neue User (die noch nicht im gespeicherten Order sind) zufällig anhängen
+          const remaining = allUsernamesLower.filter((name) => !used.has(name));
+          const shuffledRemaining = shuffle(remaining);
+          const finalOrder = filteredOrder.concat(shuffledRemaining);
+
+          let idx =
+            typeof state.currentIndex === "number" ? state.currentIndex : 0;
+          if (idx < 0) idx = 0;
+          if (idx >= finalOrder.length) idx = 0;
+
+          return { order: finalOrder, currentIndex: idx };
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function buildProfileUrl(username) {
+        const clean = username.replace(/^@/, "");
+        return "https://www.instagram.com/" + encodeURIComponent(clean) + "/";
+      }
+
+      function render() {
+        const loadingEl = document.getElementById("loading");
+        const userViewEl = document.getElementById("user-view");
+        const errorEl = document.getElementById("error");
+        const handleEl = document.getElementById("user-handle");
+        const profileLinkEl = document.getElementById("profile-link");
+        const followBackBadgeEl = document.getElementById("follow-back-badge");
+        const positionBadgeEl = document.getElementById("position-badge");
+        const seenInfoEl = document.getElementById("seen-info");
+        const statusEl = document.getElementById("status");
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+
+        errorEl.classList.add("hidden");
+        loadingEl.classList.add("hidden");
+        userViewEl.classList.remove("hidden");
+
+        if (!order.length) {
+          userViewEl.classList.add("hidden");
+          errorEl.textContent =
+            "Keine Accounts in der Following-Liste gefunden.";
+          errorEl.classList.remove("hidden");
+          return;
+        }
+
+        const currentUsernameLower = order[currentIndex];
+        const item = usernameToItem.get(currentUsernameLower);
+
+        if (!item) {
+          userViewEl.classList.add("hidden");
+          errorEl.textContent = "Fehler beim Anzeigen des aktuellen Accounts.";
+          errorEl.classList.remove("hidden");
+          return;
+        }
+
+        const displayHandle = "@" + item.username;
+        const profileUrl = item.profileUrl;
+
+        handleEl.textContent = displayHandle;
+        profileLinkEl.href = profileUrl;
+        profileLinkEl.textContent = profileUrl;
+
+        // Badge "folgt dir" / "folgt dir nicht"
+        followBackBadgeEl.textContent = "";
+        followBackBadgeEl.className = "badge";
+        const span = document.createElement("span");
+
+        if (item.followsBack) {
+          followBackBadgeEl.classList.add("badge-green");
+          span.textContent = "Folgt dir zurück ✅";
+        } else {
+          followBackBadgeEl.classList.add("badge-red");
+          span.textContent = "Folgt dir nicht zurück ❌";
+        }
+        followBackBadgeEl.appendChild(span);
+
+        // Positions-Badge
+        positionBadgeEl.textContent = `${currentIndex + 1} / ${order.length}`;
+
+        // Gesehene Accounts = alle bis zum letzten erreichten Index
+        const maxSeenIndex = Math.max(
+          currentIndex,
+          JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"currentIndex":0}')
+            .currentIndex || 0
+        );
+        seenInfoEl.textContent = `Bereits angesehen: ${maxSeenIndex + 1} von ${order.length}`;
+
+        statusEl.textContent = "";
+
+        // Buttons aktivieren/deaktivieren
+        prevBtn.disabled = currentIndex <= 0;
+        nextBtn.disabled = currentIndex >= order.length - 1;
+      }
+
+      function goNext() {
+        if (currentIndex < order.length - 1) {
+          currentIndex++;
+          saveState();
+          render();
+        }
+      }
+
+      function goPrev() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          saveState();
+          render();
+        }
+      }
+
+      function openProfile() {
+        if (!order.length) return;
+        const usernameLower = order[currentIndex];
+        const item = usernameToItem.get(usernameLower);
+        if (!item) return;
+        window.open(item.profileUrl, "_blank");
+      }
+
+      async function init() {
+        const loadingEl = document.getElementById("loading");
+        const errorEl = document.getElementById("error");
+
+        loadingEl.textContent = "Lade following.json und followers_1.json …";
+
+        try {
+          const [followingRes, followersRes] = await Promise.all([
+            fetch("following.json"),
+            fetch("followers_1.json"),
+          ]);
+
+          if (!followingRes.ok || !followersRes.ok) {
+            throw new Error("Konnte JSON-Dateien nicht laden (HTTP-Fehler).");
+          }
+
+          const followingJson = await followingRes.json();
+          const followersJson = await followersRes.json();
+
+          const relationships = Array.isArray(
+            followingJson.relationships_following
+          )
+            ? followingJson.relationships_following
+            : [];
+
+          const followersArray = Array.isArray(followersJson)
+            ? followersJson
+            : [];
+
+          // Follower-Set vorbereiten
+          const followerSet = new Set();
+          for (const f of followersArray) {
+            const entry =
+              f && Array.isArray(f.string_list_data)
+                ? f.string_list_data[0]
+                : null;
+            if (!entry) continue;
+            let uname = entry.value || parseUsernameFromHref(entry.href);
+            if (!uname) continue;
+            followerSet.add(normalizeUsername(uname));
+          }
+
+          // Following-Liste vorbereiten
+          followingItems = [];
+          usernameToItem.clear();
+
+          for (const r of relationships) {
+            if (
+              !r ||
+              !Array.isArray(r.string_list_data) ||
+              !r.string_list_data.length
+            )
+              continue;
+            const data = r.string_list_data[0];
+            let username = r.title || parseUsernameFromHref(data.href);
+            if (!username) continue;
+            const usernameLower = normalizeUsername(username);
+            const followsBack = followerSet.has(usernameLower);
+            const profileUrl = buildProfileUrl(username);
+
+            const item = {
+              username,
+              usernameLower,
+              profileUrl,
+              followsBack,
+            };
+
+            followingItems.push(item);
+            usernameToItem.set(usernameLower, item);
+          }
+
+          const allUsernamesLower = followingItems.map((i) => i.usernameLower);
+
+          if (!allUsernamesLower.length) {
+            throw new Error("Es wurden keine Following-Accounts gefunden.");
+          }
+
+          // State laden oder neu erstellen
+          const loaded = loadState(allUsernamesLower);
+          if (loaded) {
+            order = loaded.order;
+            currentIndex = loaded.currentIndex;
+          } else {
+            order = shuffle(allUsernamesLower);
+            currentIndex = 0;
+            saveState();
+          }
+
+          render();
+        } catch (err) {
+          console.error(err);
+          loadingEl.classList.add("hidden");
+          const userViewEl = document.getElementById("user-view");
+          userViewEl.classList.add("hidden");
+          errorEl.textContent = "Fehler: " + err.message;
+          errorEl.classList.remove("hidden");
+        }
+      }
+
+      // Buttons
+      document.getElementById("prev-btn").addEventListener("click", () => {
+        goPrev();
+      });
+
+      document.getElementById("next-btn").addEventListener("click", () => {
+        goNext();
+      });
+
+      document.getElementById("open-btn").addEventListener("click", () => {
+        openProfile();
+      });
+
+      // Übersicht / Tabellenansicht: Funktionen und Listener
+      function renderListView() {
+        const tbody = document.querySelector("#accounts-table tbody");
+        tbody.innerHTML = "";
+        // Zeige Reihen in der Reihenfolge 'order'
+        order.forEach((usernameLower, idx) => {
+          const item = usernameToItem.get(usernameLower);
+          if (!item) return;
+          const tr = document.createElement("tr");
+
+          // Index
+          const tdIndex = document.createElement("td");
+          tdIndex.textContent = String(idx + 1);
+
+          // Handle (wie auf der Karte)
+          const tdHandle = document.createElement("td");
+          const handleWrap = document.createElement("div");
+          handleWrap.className = "user-handle";
+          handleWrap.style.fontSize = "1rem";
+          handleWrap.style.fontWeight = "700";
+          handleWrap.textContent = "@" + item.username;
+          tdHandle.appendChild(handleWrap);
+
+          // Badge (folgt dir zurück / nicht)
+          const tdFollows = document.createElement("td");
+          const badge = document.createElement("div");
+          badge.className = "badge";
+          if (item.followsBack) {
+            badge.classList.add("badge-green");
+            badge.textContent = "Folgt dir zurück ✅";
+          } else {
+            badge.classList.add("badge-red");
+            badge.textContent = "Folgt dir nicht zurück ❌";
+          }
+          tdFollows.appendChild(badge);
+
+          // Aktion: Öffnen-Button (anstelle Link)
+          const tdAction = document.createElement("td");
+          const openBtn = document.createElement("button");
+          openBtn.type = "button";
+          openBtn.textContent = "Öffnen";
+          openBtn.className = ""; // lässt vorhandene button-Stile greifen
+          openBtn.style.padding = "6px 10px";
+          openBtn.style.borderRadius = "8px";
+          openBtn.style.background = "linear-gradient(135deg, #3b82f6, #6366f1)";
+          openBtn.style.color = "#fff";
+          openBtn.style.border = "none";
+          openBtn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            window.open(item.profileUrl, "_blank");
+          });
+          tdAction.appendChild(openBtn);
+
+          tr.appendChild(tdIndex);
+          tr.appendChild(tdHandle);
+          tr.appendChild(tdFollows);
+          tr.appendChild(tdAction);
+
+          // Klick auf Zeile: zur entsprechenden Karte wechseln
+          tr.addEventListener("click", () => {
+            currentIndex = idx;
+            saveState();
+            showUserView();
+            render();
+          });
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      function showListView() {
+        document.getElementById("user-view").classList.add("hidden");
+        document.getElementById("list-view").classList.remove("hidden");
+        renderListView();
+      }
+
+      function showUserView() {
+        document.getElementById("list-view").classList.add("hidden");
+        document.getElementById("user-view").classList.remove("hidden");
+      }
+
+      document.getElementById("list-btn").addEventListener("click", () => {
+        showListView();
+      });
+
+      document.getElementById("back-to-card").addEventListener("click", () => {
+        showUserView();
+      });
+
+      // Tastatur-Shortcuts
+      document.addEventListener("keydown", (event) => {
+        // Track gedrückte Tasten
+        if (event && event.code) pressedCodes.add(event.code);
+        // Wenn Fokus in einem Eingabefeld, nichts tun
+        const tag = (
+          (event.target && event.target.tagName) ||
+          ""
+        ).toLowerCase();
+        if (tag === "input" || tag === "textarea") return;
+
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          goNext();
+        } else if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          goPrev();
+        } else if (event.key === " " || event.code === "Space") {
+          // Leertaste: Profil öffnen (wie vorher). Keine Ausnahme mehr für N.
+          event.preventDefault(); // Scrollen verhindern
+          openProfile();
+        }
+      });
+
+      // Entferne gedrückte Taste beim Loslassen
+      document.addEventListener("keyup", (event) => {
+        if (event && event.code) pressedCodes.delete(event.code);
+      });
+
+      // Fullscreen-Overlay: zeigt das erste <img> sehr groß an, wenn Space+N gedrückt wird
+      function showOverlayWithSrc(src) {
+        let overlay = document.getElementById("big-image-overlay");
+        if (!overlay) {
+          overlay = document.createElement("div");
+          overlay.id = "big-image-overlay";
+          overlay.innerHTML = '<div class="close-hint">Esc oder Klick zum Schließen</div><img alt="Großes Bild" />';
+          document.body.appendChild(overlay);
+          overlay.addEventListener("click", (ev) => {
+            // Wenn außerhalb des Bildes oder auf den Hinweis klicken
+            if (ev.target === overlay || ev.target.classList.contains("close-hint")) closeOverlay();
+          });
+        }
+        const imgEl = overlay.querySelector("img");
+        imgEl.src = src || "";
+        overlay.classList.add("visible");
+        document.body.style.overflow = "hidden";
+      }
+
+      function showMessageOverlay(text) {
+        function escapeHtml(s){
+          return String(s).replace(/[&<>"']/g, function(m){
+            return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+          });
+        }
+
+        let overlay = document.getElementById("big-image-overlay");
+        if (!overlay) {
+          overlay = document.createElement("div");
+          overlay.id = "big-image-overlay";
+          overlay.innerHTML = '<div class="close-hint">Esc oder Klick zum Schließen</div>' +
+            '<div style="color:#fff;font-size:18px; text-align:center; max-width:90%;">' + escapeHtml(text) + '</div>';
+          document.body.appendChild(overlay);
+          overlay.addEventListener("click", (ev) => {
+            if (ev.target === overlay) closeOverlay();
+          });
+        } else {
+          const msgDiv = overlay.querySelector('div[style*="font-size:18px"]');
+          if (msgDiv) msgDiv.textContent = text;
+        }
+        overlay.classList.add("visible");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeOverlay() {
+        const overlay = document.getElementById("big-image-overlay");
+        if (overlay) {
+          overlay.classList.remove("visible");
+          document.body.style.overflow = "";
+        }
+      }
+
+      // Reagiere global auf Taste N (ohne Leertaste)
+      document.addEventListener("keydown", (e) => {
+        if (!e || !e.code) return;
+        const tag = ((e.target && e.target.tagName) || "").toLowerCase();
+        if (tag === "input" || tag === "textarea") return;
+
+        // N zeigt die lokale Datei image.png an (sofern vorhanden)
+        if (e.code === "KeyN") {
+          e.preventDefault();
+          const src = "image.png";
+          // Vorab laden, damit wir bei Fehlern eine Meldung zeigen können
+          const loader = new Image();
+          loader.onload = () => showOverlayWithSrc(src);
+          loader.onerror = () => showMessageOverlay("Bild nicht gefunden: image.png");
+          loader.src = src;
+        }
+
+        // ESC schließt Overlay
+        if (e.code === "Escape") {
+          closeOverlay();
+        }
+      });
+
+      // Initial starten
+      init();
+    </script>
+  </body>
+</html>
