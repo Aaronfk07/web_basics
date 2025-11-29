@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Shooter: Galaxy Attack</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="ui">
+            <div id="score">Score: 0</div>
+            <div id="lives">Lives: ❤️❤️❤️</div>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="gameOver" class="hidden">
+            <h1>GAME OVER</h1>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <div class="button-group">
+                <button id="restartBtn">Neustart</button>
+                <button id="backToMenuBtn" class="secondary-btn">Zurück zum Menü</button>
+            </div>
+        </div>
+        <div id="pauseMenu" class="hidden">
+            <h1>⏸️ PAUSE</h1>
+            <p>Spiel pausiert</p>
+            <div class="button-group">
+                <button id="resumeBtn">Weiterspielen</button>
+                <button id="exitToMenuBtn" class="secondary-btn">Zum Menü</button>
+            </div>
+            <div class="instructions">
+                <p>Drücke ESC zum Fortfahren</p>
+            </div>
+        </div>
+        <div id="startScreen">
+            <h1>🚀 SPACE SHOOTER 🚀</h1>
+            <p>Galaxy Attack</p>
+            
+            <div class="character-selection">
+                <h2>Wähle dein Raumschiff</h2>
+                <div class="ships-container">
+                    <div class="ship-card" data-ship="fighter">
+                        <div class="ship-preview">🚀</div>
+                        <h3>Fighter</h3>
+                        <p>Schnell & Wendig</p>
+                        <div class="stats">
+                            <span>Geschwindigkeit: ⭐⭐⭐</span>
+                            <span>Feuerrate: ⭐⭐</span>
+                        </div>
+                    </div>
+                    <div class="ship-card" data-ship="heavy">
+                        <div class="ship-preview">🛸</div>
+                        <h3>Heavy</h3>
+                        <p>Stark & Langsam</p>
+                        <div class="stats">
+                            <span>Geschwindigkeit: ⭐</span>
+                            <span>Feuerrate: ⭐⭐⭐</span>
+                        </div>
+                    </div>
+                    <div class="ship-card" data-ship="balanced">
+                        <div class="ship-preview">✈️</div>
+                        <h3>Balanced</h3>
+                        <p>Ausgewogen</p>
+                        <div class="stats">
+                            <span>Geschwindigkeit: ⭐⭐</span>
+                            <span>Feuerrate: ⭐⭐</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="startBtn" disabled>Wähle ein Raumschiff</button>
+            <div class="instructions">
+                <p>🎮 WASD zum Bewegen</p>
+                <p>🚀 LEERTASTE zum Schießen</p>
+                <p>💚 Überlebe so lange wie möglich!</p>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

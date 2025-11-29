@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTL Dornbirn Jump & Run</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="menu-screen" class="screen active">
+        <div class="menu-container">
+            <h1>HTL Dornbirn Jump & Run</h1>
+            
+            <div class="selection-section">
+                <h2>Wähle deinen Charakter</h2>
+                <div id="character-selection" class="character-grid">
+                    <!-- Characters will be loaded dynamically -->
+                </div>
+            </div>
+
+            <div class="selection-section">
+                <h2>Wähle ein Level</h2>
+                <div id="level-selection" class="level-grid">
+                    <!-- Levels will be loaded dynamically -->
+                </div>
+            </div>
+
+            <button id="start-game" class="start-btn" disabled>Spiel starten</button>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <div class="game-info">
+                <span>Level: <span id="current-level">1</span></span>
+                <span>Charakter: <span id="current-character">-</span></span>
+            </div>
+            <button id="back-to-menu" class="menu-btn">Zurück zum Menü</button>
+        </div>
+        <canvas id="game-canvas"></canvas>
+        <div id="game-over" class="game-over hidden">
+            <h2>Game Over!</h2>
+            <p id="game-over-message"></p>
+            <button id="restart-btn">Nochmal versuchen</button>
+            <button id="menu-btn">Zurück zum Menü</button>
+        </div>
+    </div>
+
+    <script type="module" src="game.js"></script>
+</body>
+</html>

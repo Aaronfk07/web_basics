@@ -1,0 +1,38 @@
+[
+    {
+        "id": "ninja",
+        "name": "Ninja",
+        "icon": "🥷",
+        "color": "#2c3e50",
+        "speed": 6,
+        "jumpPower": 15,
+        "description": "Schnell und wendig"
+    },
+    {
+        "id": "robot",
+        "name": "Robot",
+        "icon": "🤖",
+        "color": "#3498db",
+        "speed": 4,
+        "jumpPower": 18,
+        "description": "Starker Sprung"
+    },
+    {
+        "id": "astronaut",
+        "name": "Astronaut",
+        "icon": "👨‍🚀",
+        "color": "#e74c3c",
+        "speed": 5,
+        "jumpPower": 20,
+        "description": "Schwebt länger"
+    },
+    {
+        "id": "wizard",
+        "name": "Zauberer",
+        "icon": "🧙",
+        "color": "#9b59b6",
+        "speed": 3,
+        "jumpPower": 12,
+        "description": "Langsam aber stabil"
+    }
+]
