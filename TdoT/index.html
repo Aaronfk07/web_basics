@@ -11,6 +11,11 @@
         <div id="ui">
             <div id="score">Score: 0</div>
             <div id="lives">Lives: ❤️❤️❤️</div>
+            <div id="level">Level: 1</div>
+            <div id="bossHealthContainer" class="hidden">
+                <span>Boss:</span>
+                <div class="boss-bar-bg"><div id="bossHealthBar"></div></div>
+            </div>
         </div>
         <canvas id="gameCanvas"></canvas>
         <div id="gameOver" class="hidden">
@@ -30,6 +35,14 @@
             </div>
             <div class="instructions">
                 <p>Drücke ESC zum Fortfahren</p>
+            </div>
+        </div>
+        <div id="victoryScreen" class="hidden">
+            <h1>🏆 LEVEL GESCHAFFT</h1>
+            <p>Level <span id="clearedLevel">1</span> abgeschlossen!</p>
+            <div class="button-group">
+                <button id="nextLevelBtn">Nächstes Level</button>
+                <button id="victoryToMenuBtn" class="secondary-btn">Zum Menü</button>
             </div>
         </div>
         <div id="startScreen">

@@ -10,6 +10,11 @@ let score = 0;
 let lives = 3;
 let animationId;
 let selectedShip = null;
+let level = 1;
+let kills = 0;
+let killTarget = 30; // enemies to defeat before boss
+let bossFight = false;
+let boss = null;
 
 // Ship configurations
 const shipTypes = {
@@ -202,6 +207,136 @@ class Enemy {
     }
 }
 
+// Boss class
+class Boss {
+    constructor(level = 1) {
+        this.level = level;
+        this.width = 140;
+        this.height = 90;
+        this.x = canvas.width / 2 - this.width / 2;
+        this.y = -120;
+        this.targetY = 70;
+        this.speed = 1.2;
+        this.healthMax = 400 + (level - 1) * 150;
+        this.health = this.healthMax;
+        this.bullets = [];
+        this.shootCooldown = 120;
+        this.patternCooldown = 240;
+        this.color = '#dd1e42';
+        this.horizontalPhase = 0;
+    }
+
+    draw() {
+        // Boss body (rounded rectangle)
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        const r = 18;
+        ctx.moveTo(this.x + r, this.y);
+        ctx.lineTo(this.x + this.width - r, this.y);
+        ctx.quadraticCurveTo(this.x + this.width, this.y, this.x + this.width, this.y + r);
+        ctx.lineTo(this.x + this.width, this.y + this.height - r);
+        ctx.quadraticCurveTo(this.x + this.width, this.y + this.height, this.x + this.width - r, this.y + this.height);
+        ctx.lineTo(this.x + r, this.y + this.height);
+        ctx.quadraticCurveTo(this.x, this.y + this.height, this.x, this.y + this.height - r);
+        ctx.lineTo(this.x, this.y + r);
+        ctx.quadraticCurveTo(this.x, this.y, this.x + r, this.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = this.color;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Windows / details
+        ctx.fillStyle = '#ffffff';
+        for (let i = 0; i < 4; i++) {
+            ctx.fillRect(this.x + 20 + i * 25, this.y + 25, 16, 20);
+        }
+    }
+
+    update() {
+        // Move down to target then horizontal oscillation
+        if (this.y < this.targetY) {
+            this.y += this.speed;
+        } else {
+            this.horizontalPhase += 0.02;
+            this.x = canvas.width / 2 - this.width / 2 + Math.sin(this.horizontalPhase) * 90;
+        }
+
+        // Shooting logic
+        this.shootCooldown--;
+        if (this.shootCooldown <= 0) {
+            this.shootTargeted();
+            this.shootCooldown = 90 - Math.min(40, (level - 1) * 10);
+        }
+
+        this.patternCooldown--;
+        if (this.patternCooldown <= 0) {
+            this.shootSpread();
+            this.patternCooldown = 240 - Math.min(80, (level - 1) * 20);
+        }
+
+        // Update bullets
+        this.bullets = this.bullets.filter(b => b.y < canvas.height + 40);
+        this.bullets.forEach(b => b.update());
+    }
+
+    shootTargeted() {
+        // Aim at player center
+        const px = player.x + player.width / 2;
+        const py = player.y + player.height / 2;
+        const sx = this.x + this.width / 2;
+        const sy = this.y + this.height;
+        const dx = px - sx;
+        const dy = py - sy;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        const vx = (dx / len) * 5;
+        const vy = (dy / len) * 5;
+        // Special bullet object with velocity
+        this.bullets.push(new BossBullet(sx - 4, sy, vx, vy, '#ff3b3b'));
+    }
+
+    shootSpread() {
+        // Radial spread
+        const centerX = this.x + this.width / 2;
+        const centerY = this.y + this.height;
+        const count = 14;
+        for (let i = 0; i < count; i++) {
+            const angle = (Math.PI * 2 * i) / count;
+            const vx = Math.cos(angle) * 3.2;
+            const vy = Math.sin(angle) * 3.2;
+            this.bullets.push(new BossBullet(centerX, centerY, vx, vy, '#ff6b6b'));
+        }
+    }
+
+    hit() {
+        this.health -= 10; // boss takes fixed damage per bullet
+        updateBossHealthBar();
+        return this.health <= 0;
+    }
+}
+
+class BossBullet extends Bullet {
+    constructor(x, y, vx, vy, color) {
+        super(x, y, 0, color, true);
+        this.vx = vx;
+        this.vy = vy;
+        this.width = 8;
+        this.height = 8;
+    }
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.draw();
+    }
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
 // Particle effect for explosions
 class Particle {
     constructor(x, y, color) {
@@ -271,6 +406,12 @@ function init() {
     score = 0;
     lives = 3;
     enemySpawnTimer = 0;
+    kills = 0;
+    bossFight = false;
+    boss = null;
+    killTarget = 30;
+    document.getElementById('bossHealthContainer').classList.add('hidden');
+    updateBossHealthBar(0, 1);
 
     // Create stars
     for (let i = 0; i < 50; i++) {
@@ -307,6 +448,43 @@ function updateUI() {
     document.getElementById('score').textContent = `Score: ${score}`;
     const heartsDisplay = '❤️'.repeat(lives);
     document.getElementById('lives').textContent = `Lives: ${heartsDisplay}`;
+    document.getElementById('level').textContent = `Level: ${level}`;
+}
+
+function updateBossHealthBar() {
+    if (!boss) return;
+    const bar = document.getElementById('bossHealthBar');
+    const pct = Math.max(0, boss.health) / boss.healthMax;
+    bar.style.width = (pct * 100) + '%';
+}
+
+function spawnBoss() {
+    bossFight = true;
+    boss = new Boss(level);
+    document.getElementById('bossHealthContainer').classList.remove('hidden');
+    updateBossHealthBar();
+}
+
+function bossDefeated() {
+    bossFight = false;
+    document.getElementById('bossHealthContainer').classList.add('hidden');
+    document.getElementById('clearedLevel').textContent = level;
+    gameState = 'victory';
+    cancelAnimationFrame(animationId);
+    document.getElementById('victoryScreen').classList.remove('hidden');
+}
+
+function startNextLevel() {
+    level++;
+    kills = 0;
+    killTarget += 10; // higher requirement
+    boss = null;
+    bossFight = false;
+    document.getElementById('victoryScreen').classList.add('hidden');
+    gameState = 'playing';
+    enemySpawnDelay = Math.max(25, 60 - level * 5); // harder spawn rate
+    updateUI();
+    gameLoop();
 }
 
 // Game loop
@@ -330,18 +508,19 @@ function gameLoop() {
     // Draw player bullets
     player.bullets.forEach(bullet => bullet.draw());
 
-    // Spawn enemies
-    enemySpawnTimer--;
-    if (enemySpawnTimer <= 0) {
-        spawnEnemy();
-        enemySpawnTimer = enemySpawnDelay;
-        // Gradually increase difficulty
-        if (enemySpawnDelay > 30) {
-            enemySpawnDelay -= 0.1;
+    // Spawn enemies only if not in boss fight
+    if (!bossFight) {
+        enemySpawnTimer--;
+        if (enemySpawnTimer <= 0) {
+            spawnEnemy();
+            enemySpawnTimer = enemySpawnDelay;
+            if (enemySpawnDelay > 30) {
+                enemySpawnDelay -= 0.1;
+            }
         }
     }
 
-    // Update and draw enemies
+    // Update and draw enemies (skip if boss fight ended them spawning but still clear leftovers)
     enemies.forEach((enemy, eIndex) => {
         enemy.update();
         enemy.draw();
@@ -352,9 +531,15 @@ function gameLoop() {
                 player.bullets.splice(bIndex, 1);
                 if (enemy.hit()) {
                     enemies.splice(eIndex, 1);
+                    kills++;
                     score += enemy.type === 'shooter' ? 20 : 10;
                     updateUI();
                     createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.color);
+                    if (!bossFight && kills >= killTarget) {
+                        // Spawn boss; clear remaining normal enemies for clarity
+                        enemies = [];
+                        spawnBoss();
+                    }
                 }
             }
         });
@@ -386,19 +571,48 @@ function gameLoop() {
     });
 
     // Handle off-screen enemies: if enemy escapes past bottom, player loses a life
-    const remainingEnemies = [];
-    enemies.forEach((enemy) => {
-        if (enemy.y >= canvas.height) {
-            lives--;
-            updateUI();
-            if (lives <= 0) {
-                endGame();
+    if (!bossFight) {
+        const remainingEnemies = [];
+        enemies.forEach((enemy) => {
+            if (enemy.y >= canvas.height) {
+                lives--;
+                updateUI();
+                if (lives <= 0) {
+                    endGame();
+                }
+            } else {
+                remainingEnemies.push(enemy);
             }
-        } else {
-            remainingEnemies.push(enemy);
-        }
-    });
-    enemies = remainingEnemies;
+        });
+        enemies = remainingEnemies;
+    }
+
+    // Boss logic
+    if (bossFight && boss) {
+        boss.update();
+        boss.draw();
+        // Boss bullets collision with player
+        boss.bullets.forEach((b, i) => {
+            if (checkCollision({x: b.x-6, y: b.y-6, width:12, height:12}, player)) {
+                boss.bullets.splice(i,1);
+                player.hit();
+                updateUI();
+                if (lives <= 0) endGame();
+            }
+        });
+        // Player bullets hitting boss
+        player.bullets.forEach((bullet, bi) => {
+            if (bullet.y < boss.y + boss.height && bullet.y + bullet.height > boss.y && bullet.x > boss.x && bullet.x < boss.x + boss.width) {
+                player.bullets.splice(bi,1);
+                createExplosion(bullet.x, bullet.y, '#ff3b3b');
+                if (boss.hit()) {
+                    // Boss defeated
+                    createExplosion(boss.x + boss.width/2, boss.y + boss.height/2, '#ff3b3b');
+                    bossDefeated();
+                }
+            }
+        });
+    }
 
     // Update and draw particles
     particles = particles.filter(p => p.life > 0);
@@ -543,6 +757,14 @@ document.getElementById('restartBtn').addEventListener('click', () => {
 
 // Back to menu from game over
 document.getElementById('backToMenuBtn').addEventListener('click', () => {
+    returnToMenu();
+});
+
+// Victory screen buttons
+document.getElementById('nextLevelBtn').addEventListener('click', () => {
+    startNextLevel();
+});
+document.getElementById('victoryToMenuBtn').addEventListener('click', () => {
     returnToMenu();
 });
 

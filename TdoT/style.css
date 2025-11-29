@@ -56,6 +56,50 @@ body {
     box-shadow: 0 6px 16px rgba(11, 26, 47, 0.06);
 }
 
+#level {
+    color: #0b1a2f;
+    font-size: 16px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e2edff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(11, 26, 47, 0.06);
+}
+
+#bossHealthContainer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.85);
+    border: 1px solid #e2edff;
+    padding: 6px 10px;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(11,26,47,0.06);
+    font-size: 13px;
+    font-weight: 600;
+    color: #0b1a2f;
+}
+
+.boss-bar-bg {
+    position: relative;
+    width: 120px;
+    height: 10px;
+    background: #d9e9ff;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#bossHealthBar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ff6b6b, #ff3b3b);
+    transition: width 0.25s ease;
+}
+
 #startScreen, #gameOver, #pauseMenu {
     position: absolute;
     top: 0;
