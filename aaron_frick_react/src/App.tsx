@@ -2,6 +2,7 @@ import Card from './components/card';
 import Button from './components/Button';
 import Card2 from './components/Card2';
 import List from './components/List';
+import Counter from './components/Counter';
 
 export default function App() {
   
@@ -23,6 +24,11 @@ export default function App() {
         <div>
           <h2 className="text-xl font-semibold mb-4">Liste</h2>
           <List />
+        </div>
+
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Counter</h2>
+          <Counter />
         </div>
       </div>
 
