@@ -4,6 +4,7 @@ import Card2 from './components/Card2';
 import List from './components/List';
 
 export default function App() {
+  
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-8">4 Aufgabe Komponenten</h1>
@@ -31,8 +32,13 @@ export default function App() {
       <div className='grid grid-cols-2 w-80 gap-4'>
         <Card title='aaron' description='A description about aaron' />
         <Card title='susi' description='A description about susi' />
+        <Card title='hans' description='A description about hans' />
+        <Card title='lena' description='A description about lena' />
+        
       </div>
+      
     </div>
+
   );
 }
 
