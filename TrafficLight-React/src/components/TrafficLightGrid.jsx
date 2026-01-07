@@ -8,7 +8,7 @@ const trafficLights = [
   { id: 'C', state: 'GREEN' }
 ]
 
-function TrafficLightGrid({ selectedLight, onSelectLight }) {
+function TrafficLightGrid({ onSelectLight, selectedLight }) {
   return (
     <div className="traffic-lights-grid">
       {trafficLights.map((light) => (

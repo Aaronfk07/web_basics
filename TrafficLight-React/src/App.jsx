@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import TrafficLightGrid from './components/TrafficLightGrid'
-import DataPanel from './components/DataPanel'
-import TrafficChart from './components/TrafficChart'
+import MainPage from './pages/MainPage'
+import DetailPage from './pages/DetailPage'
 import './App.css'
 
 // Mock data for each traffic light
-const trafficLightData = {
+export const trafficLightData = {
   '1': {
     title: 'Traffic Light 1',
     overallState: 'GREEN',
@@ -49,26 +48,32 @@ const trafficLightData = {
 }
 
 function App() {
-  const [selectedLight, setSelectedLight] = useState('1')
-  const currentData = trafficLightData[selectedLight]
+  const [currentPage, setCurrentPage] = useState('main')
+  const [selectedLight, setSelectedLight] = useState(null)
+
+  const handleSelectLight = (lightId) => {
+    setSelectedLight(lightId)
+    setCurrentPage('detail')
+  }
+
+  const handleBackToMain = () => {
+    setCurrentPage('main')
+    setSelectedLight(null)
+  }
 
   return (
-    <div className="container">
-      <div className="left-section">
-        <h1>Traffic Light Control</h1>
-        <TrafficLightGrid 
-          selectedLight={selectedLight}
-          onSelectLight={setSelectedLight}
+    <>
+      {currentPage === 'main' && (
+        <MainPage onSelectLight={handleSelectLight} />
+      )}
+      {currentPage === 'detail' && selectedLight && (
+        <DetailPage 
+          lightId={selectedLight} 
+          data={trafficLightData[selectedLight]}
+          onBack={handleBackToMain}
         />
-      </div>
-
-      <div className="right-section">
-        <div className="chart-container">
-          <TrafficChart data={currentData} />
-        </div>
-        <DataPanel data={currentData} />
-      </div>
-    </div>
+      )}
+    </>
   )
 }
 
