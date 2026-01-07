@@ -1,0 +1,13 @@
+.traffic-lights-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+  justify-items: center;
+}
+
+@media (max-width: 768px) {
+  .traffic-lights-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}

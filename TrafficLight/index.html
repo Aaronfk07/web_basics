@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Light Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="left-section">
+            <h1>Traffic Light Control</h1>
+            <div class="traffic-lights-grid">
+                <!-- Traffic Light 1 -->
+                <div class="traffic-light-wrapper">
+                    <h2>1</h2>
+                    <div class="traffic-light" data-id="1">
+                        <div class="light red"></div>
+                        <div class="light yellow"></div>
+                        <div class="light green active"></div>
+                    </div>
+                </div>
+
+                <!-- Traffic Light A -->
+                <div class="traffic-light-wrapper">
+                    <h2>A</h2>
+                    <div class="traffic-light" data-id="A">
+                        <div class="light red"></div>
+                        <div class="light yellow active"></div>
+                        <div class="light green"></div>
+                    </div>
+                </div>
+
+                <!-- Traffic Light B -->
+                <div class="traffic-light-wrapper">
+                    <h2>B</h2>
+                    <div class="traffic-light" data-id="B">
+                        <div class="light red active"></div>
+                        <div class="light yellow"></div>
+                        <div class="light green"></div>
+                    </div>
+                </div>
+
+                <!-- Traffic Light C -->
+                <div class="traffic-light-wrapper">
+                    <h2>C</h2>
+                    <div class="traffic-light" data-id="C">
+                        <div class="light red"></div>
+                        <div class="light yellow"></div>
+                        <div class="light green active"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-section">
+            <div class="chart-container">
+                <canvas id="trafficChart"></canvas>
+            </div>
+            <div class="data-panel" id="dataPanel">
+                <h3>Select a traffic light</h3>
+                <p>Click on a traffic light to view detailed information</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

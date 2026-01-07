@@ -3,6 +3,7 @@ import Button from './components/Button';
 import Card2 from './components/Card2';
 import List from './components/List';
 import Counter from './components/Counter';
+import LightSwitch from './components/LightSwitch';
 
 export default function App() {
   
@@ -29,6 +30,11 @@ export default function App() {
         <div>
           <h2 className="text-xl font-semibold mb-4">Counter</h2>
           <Counter />
+        </div>
+
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Light Switch</h2>
+          <LightSwitch />
         </div>
       </div>
 

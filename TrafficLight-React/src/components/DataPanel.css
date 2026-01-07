@@ -1,0 +1,39 @@
+.data-panel {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.data-panel h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 20px;
+}
+
+.data-panel p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.data-item {
+  margin: 15px 0;
+  padding: 10px;
+  background: #f5f5f5;
+  border-left: 4px solid #667eea;
+  border-radius: 5px;
+}
+
+.data-item strong {
+  color: #333;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.data-item span {
+  color: #666;
+  display: block;
+}
