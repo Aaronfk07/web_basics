@@ -41,8 +41,8 @@ function App() {
   useEffect(() => {
     fetchTrafficData()
     
-    // Poll for updates every 10 seconds
-    const pollInterval = setInterval(fetchTrafficData, 10000)
+    // Poll for updates every 5 seconds (faster refresh)
+    const pollInterval = setInterval(fetchTrafficData, 5000)
     
     return () => clearInterval(pollInterval)
   }, [])

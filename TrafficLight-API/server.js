@@ -18,11 +18,12 @@ const trafficLightStates = {
 
 const statesCycle = ['RED', 'YELLOW', 'GREEN']
 
-const baseTrafficData = {
+// Base traffic data template
+const baseTrafficDataTemplate = {
   '1': {
     title: 'Traffic Light 1',
-    minütlicheDaten: [45, 52, 48, 61, 55, 58, 62, 51, 49, 53],
-    ampelUndCarCount: [
+    baseData: [45, 52, 48, 61, 55, 58, 62, 51, 49, 53],
+    ampelUndCarCountBase: [
       { ampel: 'RED', carCount: 12 },
       { ampel: 'YELLOW', carCount: 8 },
       { ampel: 'GREEN', carCount: 45 }
@@ -30,8 +31,8 @@ const baseTrafficData = {
   },
   'A': {
     title: 'Traffic Light A',
-    minütlicheDaten: [38, 42, 46, 41, 39, 44, 48, 43, 40, 45],
-    ampelUndCarCount: [
+    baseData: [38, 42, 46, 41, 39, 44, 48, 43, 40, 45],
+    ampelUndCarCountBase: [
       { ampel: 'RED', carCount: 28 },
       { ampel: 'YELLOW', carCount: 15 },
       { ampel: 'GREEN', carCount: 32 }
@@ -39,8 +40,8 @@ const baseTrafficData = {
   },
   'B': {
     title: 'Traffic Light B',
-    minütlicheDaten: [22, 18, 25, 20, 23, 19, 26, 21, 24, 22],
-    ampelUndCarCount: [
+    baseData: [22, 18, 25, 20, 23, 19, 26, 21, 24, 22],
+    ampelUndCarCountBase: [
       { ampel: 'RED', carCount: 42 },
       { ampel: 'YELLOW', carCount: 6 },
       { ampel: 'GREEN', carCount: 18 }
@@ -48,8 +49,8 @@ const baseTrafficData = {
   },
   'C': {
     title: 'Traffic Light C',
-    minütlicheDaten: [55, 58, 62, 59, 61, 57, 63, 60, 64, 58],
-    ampelUndCarCount: [
+    baseData: [55, 58, 62, 59, 61, 57, 63, 60, 64, 58],
+    ampelUndCarCountBase: [
       { ampel: 'RED', carCount: 5 },
       { ampel: 'YELLOW', carCount: 12 },
       { ampel: 'GREEN', carCount: 55 }
@@ -57,31 +58,54 @@ const baseTrafficData = {
   }
 }
 
-// Helper function to get current state
-function getCurrentState(lightId) {
-  const light = trafficLightStates[lightId]
-  const stateIndex = light.cycleOrder[light.currentIndex]
-  return statesCycle[stateIndex]
+// Function to generate slightly varied data
+function generateVariedData(baseData) {
+  return baseData.map(value => {
+    const variance = Math.floor(Math.random() * 10) - 5 // -5 to +5
+    return Math.max(0, value + variance)
+  })
 }
 
-// Update states every minute
-setInterval(() => {
-  Object.keys(trafficLightStates).forEach(lightId => {
-    const light = trafficLightStates[lightId]
-    light.currentIndex = (light.currentIndex + 1) % light.cycleOrder.length
-  })
-}, 60000) // 60000ms = 1 minute
+// Function to generate varied car counts
+function generateVariedCarCounts(baseCountArray) {
+  return baseCountArray.map(item => ({
+    ...item,
+    carCount: Math.max(0, item.carCount + Math.floor(Math.random() * 8) - 4)
+  }))
+}
+
+// Helper function to get current state and update it
+function getCurrentStateAndUpdate(lightId) {
+  const light = trafficLightStates[lightId]
+  const stateIndex = light.cycleOrder[light.currentIndex]
+  const currentState = statesCycle[stateIndex]
+  
+  // Update to next state for next request
+  light.currentIndex = (light.currentIndex + 1) % light.cycleOrder.length
+  
+  return currentState
+}
+
+// Function to get traffic data with current state
+function getTrafficDataWithState(lightId) {
+  const template = baseTrafficDataTemplate[lightId]
+  const currentState = getCurrentStateAndUpdate(lightId)
+  
+  return {
+    title: template.title,
+    overallState: currentState,
+    minütlicheDaten: generateVariedData(template.baseData),
+    ampelUndCarCount: generateVariedCarCounts(template.ampelUndCarCountBase)
+  }
+}
 
 // Routes
 
 // Get all traffic lights with current states
 app.get('/api/traffic-lights', (req, res) => {
   const lights = {}
-  Object.keys(baseTrafficData).forEach(lightId => {
-    lights[lightId] = {
-      ...baseTrafficData[lightId],
-      overallState: getCurrentState(lightId)
-    }
+  Object.keys(baseTrafficDataTemplate).forEach(lightId => {
+    lights[lightId] = getTrafficDataWithState(lightId)
   })
   res.json(lights)
 })
@@ -90,21 +114,22 @@ app.get('/api/traffic-lights', (req, res) => {
 app.get('/api/traffic-lights/:id', (req, res) => {
   const { id } = req.params
   
-  if (!baseTrafficData[id]) {
+  if (!baseTrafficDataTemplate[id]) {
     return res.status(404).json({ error: 'Traffic light not found' })
   }
 
-  res.json({
-    ...baseTrafficData[id],
-    overallState: getCurrentState(id)
-  })
+  res.json(getTrafficDataWithState(id))
 })
 
 // Get all traffic light states
 app.get('/api/states', (req, res) => {
   const states = {}
-  Object.keys(baseTrafficData).forEach(lightId => {
-    states[lightId] = getCurrentState(lightId)
+  Object.keys(baseTrafficDataTemplate).forEach(lightId => {
+    const light = trafficLightStates[lightId]
+    const stateIndex = light.cycleOrder[light.currentIndex]
+    states[lightId] = statesCycle[stateIndex]
+    // Update state after reading
+    light.currentIndex = (light.currentIndex + 1) % light.cycleOrder.length
   })
   res.json(states)
 })
