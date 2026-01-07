@@ -1,55 +1,51 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import MainPage from './pages/MainPage'
 import DetailPage from './pages/DetailPage'
 import './App.css'
 
-// Mock data for each traffic light
-export const trafficLightData = {
-  '1': {
-    title: 'Traffic Light 1',
-    overallState: 'GREEN',
-    minütlicheDaten: [45, 52, 48, 61, 55, 58, 62, 51, 49, 53],
-    ampelUndCarCount: [
-      { ampel: 'RED', carCount: 12 },
-      { ampel: 'YELLOW', carCount: 8 },
-      { ampel: 'GREEN', carCount: 45 }
-    ]
-  },
-  'A': {
-    title: 'Traffic Light A',
-    overallState: 'YELLOW',
-    minütlicheDaten: [38, 42, 46, 41, 39, 44, 48, 43, 40, 45],
-    ampelUndCarCount: [
-      { ampel: 'RED', carCount: 28 },
-      { ampel: 'YELLOW', carCount: 15 },
-      { ampel: 'GREEN', carCount: 32 }
-    ]
-  },
-  'B': {
-    title: 'Traffic Light B',
-    overallState: 'RED',
-    minütlicheDaten: [22, 18, 25, 20, 23, 19, 26, 21, 24, 22],
-    ampelUndCarCount: [
-      { ampel: 'RED', carCount: 42 },
-      { ampel: 'YELLOW', carCount: 6 },
-      { ampel: 'GREEN', carCount: 18 }
-    ]
-  },
-  'C': {
-    title: 'Traffic Light C',
-    overallState: 'GREEN',
-    minütlicheDaten: [55, 58, 62, 59, 61, 57, 63, 60, 64, 58],
-    ampelUndCarCount: [
-      { ampel: 'RED', carCount: 5 },
-      { ampel: 'YELLOW', carCount: 12 },
-      { ampel: 'GREEN', carCount: 55 }
-    ]
-  }
-}
+const API_URL = 'http://localhost:5000/api'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('main')
   const [selectedLight, setSelectedLight] = useState(null)
+  const [trafficData, setTrafficData] = useState({})
+  const [trafficStates, setTrafficStates] = useState({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  // Fetch traffic light data from API
+  const fetchTrafficData = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${API_URL}/traffic-lights`)
+      if (!response.ok) throw new Error('Failed to fetch traffic data')
+      const data = await response.json()
+      setTrafficData(data)
+      
+      // Extract states
+      const states = {}
+      Object.keys(data).forEach(lightId => {
+        states[lightId] = data[lightId].overallState
+      })
+      setTrafficStates(states)
+      setError(null)
+    } catch (err) {
+      console.error('Error fetching data:', err)
+      setError('Failed to connect to API. Make sure the server is running on port 5000.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Initial fetch and setup polling
+  useEffect(() => {
+    fetchTrafficData()
+    
+    // Poll for updates every 10 seconds
+    const pollInterval = setInterval(fetchTrafficData, 10000)
+    
+    return () => clearInterval(pollInterval)
+  }, [])
 
   const handleSelectLight = (lightId) => {
     setSelectedLight(lightId)
@@ -61,15 +57,45 @@ function App() {
     setSelectedLight(null)
   }
 
+  if (loading && Object.keys(trafficData).length === 0) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p>Loading traffic light data...</p>
+      </div>
+    )
+  }
+
+  if (error && Object.keys(trafficData).length === 0) {
+    return (
+      <div className="error-container">
+        <h2>⚠️ Connection Error</h2>
+        <p>{error}</p>
+        <p style={{ marginTop: '20px', fontSize: '14px', color: '#666' }}>
+          To start the API server, run:<br/>
+          <code style={{ background: '#f0f0f0', padding: '10px', display: 'block', marginTop: '10px' }}>
+            cd TrafficLight-API && npm install && npm start
+          </code>
+        </p>
+      </div>
+    )
+  }
+
   return (
     <>
       {currentPage === 'main' && (
-        <MainPage onSelectLight={handleSelectLight} />
+        <MainPage 
+          onSelectLight={handleSelectLight}
+          trafficStates={trafficStates}
+        />
       )}
-      {currentPage === 'detail' && selectedLight && (
+      {currentPage === 'detail' && selectedLight && trafficData[selectedLight] && (
         <DetailPage 
           lightId={selectedLight} 
-          data={trafficLightData[selectedLight]}
+          data={{
+            ...trafficData[selectedLight],
+            overallState: trafficStates[selectedLight]
+          }}
           onBack={handleBackToMain}
         />
       )}

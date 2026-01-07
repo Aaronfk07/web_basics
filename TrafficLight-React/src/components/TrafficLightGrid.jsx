@@ -2,20 +2,20 @@ import TrafficLight from './TrafficLight'
 import './TrafficLightGrid.css'
 
 const trafficLights = [
-  { id: '1', state: 'GREEN' },
-  { id: 'A', state: 'YELLOW' },
-  { id: 'B', state: 'RED' },
-  { id: 'C', state: 'GREEN' }
+  { id: '1' },
+  { id: 'A' },
+  { id: 'B' },
+  { id: 'C' }
 ]
 
-function TrafficLightGrid({ onSelectLight, selectedLight }) {
+function TrafficLightGrid({ onSelectLight, selectedLight, trafficStates }) {
   return (
     <div className="traffic-lights-grid">
       {trafficLights.map((light) => (
         <TrafficLight
           key={light.id}
           id={light.id}
-          currentState={light.state}
+          currentState={trafficStates[light.id]}
           isSelected={selectedLight === light.id}
           onClick={() => onSelectLight(light.id)}
         />

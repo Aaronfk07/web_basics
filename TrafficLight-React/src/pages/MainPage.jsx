@@ -2,13 +2,16 @@ import TrafficLightGrid from '../components/TrafficLightGrid'
 import CombinedChart from '../components/CombinedChart'
 import './MainPage.css'
 
-function MainPage({ onSelectLight }) {
+function MainPage({ onSelectLight, trafficStates }) {
   return (
     <div className="main-page">
       <div className="main-container">
         <div className="left-section">
           <h1>Traffic Light Control</h1>
-          <TrafficLightGrid onSelectLight={onSelectLight} />
+          <TrafficLightGrid 
+            onSelectLight={onSelectLight}
+            trafficStates={trafficStates}
+          />
         </div>
 
         <div className="right-section">

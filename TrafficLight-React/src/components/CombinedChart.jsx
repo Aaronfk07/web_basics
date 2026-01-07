@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Line } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -9,7 +10,6 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
-import { trafficLightData } from '../App'
 
 ChartJS.register(
   CategoryScale,
@@ -21,69 +21,75 @@ ChartJS.register(
   Legend
 )
 
-function getStateColor(state) {
-  switch(state) {
-    case 'RED':
-      return '#ff4444'
-    case 'YELLOW':
-      return '#ffdd44'
-    case 'GREEN':
-      return '#44ff44'
-    default:
-      return '#666'
-  }
-}
+const API_URL = 'http://localhost:5000/api'
 
 function CombinedChart() {
-  const chartData = {
-    labels: ['Min 1', 'Min 2', 'Min 3', 'Min 4', 'Min 5', 'Min 6', 'Min 7', 'Min 8', 'Min 9', 'Min 10'],
-    datasets: [
-      {
-        label: 'Traffic Light 1',
-        data: trafficLightData['1'].minütlicheDaten,
-        borderColor: '#ff6b6b',
-        backgroundColor: '#ff6b6b33',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-      },
-      {
-        label: 'Traffic Light A',
-        data: trafficLightData['A'].minütlicheDaten,
-        borderColor: '#4ecdc4',
-        backgroundColor: '#4ecdc433',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-      },
-      {
-        label: 'Traffic Light B',
-        data: trafficLightData['B'].minütlicheDaten,
-        borderColor: '#ffa502',
-        backgroundColor: '#ffa50233',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-      },
-      {
-        label: 'Traffic Light C',
-        data: trafficLightData['C'].minütlicheDaten,
-        borderColor: '#95e1d3',
-        backgroundColor: '#95e1d333',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6,
+  const [chartData, setChartData] = useState(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${API_URL}/traffic-lights`)
+        const data = await response.json()
+
+        const chartInfo = {
+          labels: ['Min 1', 'Min 2', 'Min 3', 'Min 4', 'Min 5', 'Min 6', 'Min 7', 'Min 8', 'Min 9', 'Min 10'],
+          datasets: [
+            {
+              label: 'Traffic Light 1',
+              data: data['1'].minütlicheDaten,
+              borderColor: '#ff6b6b',
+              backgroundColor: '#ff6b6b33',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            },
+            {
+              label: 'Traffic Light A',
+              data: data['A'].minütlicheDaten,
+              borderColor: '#4ecdc4',
+              backgroundColor: '#4ecdc433',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            },
+            {
+              label: 'Traffic Light B',
+              data: data['B'].minütlicheDaten,
+              borderColor: '#ffa502',
+              backgroundColor: '#ffa50233',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            },
+            {
+              label: 'Traffic Light C',
+              data: data['C'].minütlicheDaten,
+              borderColor: '#95e1d3',
+              backgroundColor: '#95e1d333',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            }
+          ]
+        }
+
+        setChartData(chartInfo)
+      } catch (error) {
+        console.error('Error fetching chart data:', error)
       }
-    ]
-  }
+    }
+
+    fetchData()
+  }, [])
 
   const options = {
     responsive: true,
@@ -126,6 +132,8 @@ function CombinedChart() {
       }
     }
   }
+
+  if (!chartData) return <p>Loading chart...</p>
 
   return <Line data={chartData} options={options} />
 }
