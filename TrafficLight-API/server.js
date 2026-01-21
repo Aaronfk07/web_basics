@@ -1,12 +1,17 @@
 import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 
 const app = express()
 const PORT = 5000
 
 // Middleware
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:5173', // Vite default port
+  credentials: true
+}))
 app.use(express.json())
+app.use(cookieParser())
 
 // Traffic Light data store (in-memory)
 const trafficLightStates = {
@@ -139,6 +144,51 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
+// Cookie consent routes
+
+// Get cookie consent status
+app.get('/api/cookies/consent', (req, res) => {
+  const consent = req.cookies.cookieConsent
+  res.json({ 
+    hasConsent: consent === 'accepted',
+    status: consent || 'not-set',
+    timestamp: new Date().toISOString()
+  })
+})
+
+// Set cookie consent
+app.post('/api/cookies/consent', (req, res) => {
+  const { consent } = req.body // 'accepted' or 'rejected'
+  
+  if (!consent || (consent !== 'accepted' && consent !== 'rejected')) {
+    return res.status(400).json({ error: 'Invalid consent value. Must be "accepted" or "rejected"' })
+  }
+
+  // Set cookie with 1 year expiration
+  const oneYear = 365 * 24 * 60 * 60 * 1000
+  res.cookie('cookieConsent', consent, {
+    maxAge: oneYear,
+    httpOnly: false, // Allow JavaScript to read it
+    sameSite: 'lax',
+    secure: false // Set to true in production with HTTPS
+  })
+
+  res.json({ 
+    message: `Cookie consent ${consent}`,
+    consent: consent,
+    timestamp: new Date().toISOString()
+  })
+})
+
+// Delete cookie consent
+app.delete('/api/cookies/consent', (req, res) => {
+  res.clearCookie('cookieConsent')
+  res.json({ 
+    message: 'Cookie consent cleared',
+    timestamp: new Date().toISOString()
+  })
+})
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' })
@@ -152,4 +202,7 @@ app.listen(PORT, () => {
   console.log(`  GET /api/traffic-lights/:id - Get specific traffic light`)
   console.log(`  GET /api/states - Get all traffic light states`)
   console.log(`  GET /api/health - Health check`)
+  console.log(`  GET /api/cookies/consent - Get cookie consent status`)
+  console.log(`  POST /api/cookies/consent - Set cookie consent`)
+  console.log(`  DELETE /api/cookies/consent - Clear cookie consent`)
 })

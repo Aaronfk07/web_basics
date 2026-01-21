@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import MainPage from './pages/MainPage'
 import DetailPage from './pages/DetailPage'
+import CookieBanner from './components/CookieBanner'
 import './App.css'
 
 const API_URL = 'http://localhost:5000/api'
@@ -83,6 +84,7 @@ function App() {
 
   return (
     <>
+      <CookieBanner />
       {currentPage === 'main' && (
         <MainPage 
           onSelectLight={handleSelectLight}
