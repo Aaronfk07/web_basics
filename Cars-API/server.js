@@ -55,14 +55,20 @@ function escapeXML(str) {
 
 // Middleware um Format zu bestimmen
 app.use((req, res, next) => {
-  // Format basierend auf Accept-Header oder format-Parameter bestimmen
-  const format = req.query.format || req.get('Accept');
-  
-  if (format && format.includes('xml')) {
+  // Zuerst den format-Parameter prüfen
+  if (req.query.format === 'xml') {
     res.locals.format = 'xml';
-  } else {
+  } 
+  // Dann Accept-Header prüfen
+  else if (req.get('Accept') && req.get('Accept').includes('xml')) {
+    res.locals.format = 'xml';
+  } 
+  // Standard: JSON
+  else {
     res.locals.format = 'json';
   }
+  
+  console.log(`📨 ${req.method} ${req.path} → Format: ${res.locals.format}`);
   next();
 });
 
